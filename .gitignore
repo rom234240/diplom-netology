@@ -1,0 +1,29 @@
+# .gitignore
+
+# Django
+*.pyc
+__pycache__/
+*.sqlite3
+*.log
+media/
+staticfiles/
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database
+*.db
