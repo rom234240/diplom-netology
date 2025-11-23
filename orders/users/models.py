@@ -39,7 +39,7 @@ class User(AbstractUser):
 
     email = models.EmailField(_('email address'), unique=True)
     company = models.CharField(verbose_name='Компания', max_length=40, blank=True)
-    position = models.CharField(verbose_name='Должность', max_lenght=40, blank=True)
+    position = models.CharField(verbose_name='Должность', max_length=40, blank=True)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
@@ -48,4 +48,4 @@ class User(AbstractUser):
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Список пользователей'
         ordering = ('email',)
-        
+
