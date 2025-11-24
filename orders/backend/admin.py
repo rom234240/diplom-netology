@@ -6,22 +6,22 @@ from .models import Shop, Category, Product, ProductInfo, Parameter, ProductPara
 class ShopAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'url')
     list_display_links = ('id', 'name')
-    search_fields = ('name')
+    search_fields = ('name',)
     list_per_page = 20
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     list_display_links = ('id', 'name')
-    search_fields = ('name')
-    filter_horizontal = ('shops')
+    search_fields = ('name',)
+    filter_horizontal = ('shops',)
     list_per_page = 20
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'category')
     list_display_links = ('id', 'name')
-    list_filter = ('category')
+    list_filter = ('category',)
     search_fields = ('name', 'category__name')
     list_per_page = 20
 
@@ -47,14 +47,14 @@ class ProductInfoAdmin(admin.ModelAdmin):
 class ParameterAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     list_display_links = ('id', 'name')
-    search_fields = ('name')
+    search_fields = ('name',)
     list_per_page = 20
 
 @admin.register(ProductParameter)
 class ProductParameterAdmin(admin.ModelAdmin):
     list_display = ('id', 'product_info', 'parameter', 'value')
     list_display_links = ('id', 'product_info')
-    list_filter = ('parameter')
+    list_filter = ('parameter',)
     search_fields = ('product_info__product__name', 'parameter__name', 'value')
     raw_id_fields = ('product_info', 'parameter')
     list_per_page = 20
