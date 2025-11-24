@@ -135,3 +135,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # User model
 
 AUTH_USER_MODEL = 'users.User'
+
+# Улучшаем заголовок админки
+ADMIN_SITE_HEADER = "Панель управления заказами"
+ADMIN_SITE_TITLE = "Админка заказов"
+ADMIN_INDEX_TITLE = "Управление данными"
