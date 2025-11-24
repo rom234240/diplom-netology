@@ -23,8 +23,8 @@ class Category(models.Model):
         verbose_name_plural = 'Список категорий'
         ordering = ('-name',)
 
-        def __str__(self):
-            return self.name
+    def __str__(self):
+        return self.name
         
 class Product(models.Model):
     name = models.CharField(max_length=80, verbose_name='Название')
@@ -54,6 +54,9 @@ class ProductInfo(models.Model):
             models.UniqueConstraint(fields=['product_id', 'shop_id', 'external_id'], name='unique_product_info'),
         ]
 
+    def __str__(self):
+        return f'{self.product.name} - {self.shop.name}'
+
 class Parameter(models.Model):
     name = models.CharField(max_length=40, verbose_name='Название')
 
@@ -72,7 +75,10 @@ class ProductParameter(models.Model):
 
     class Meta:
         verbose_name = 'Параметр'
-        verbose_name_plural = 'Список парметров'
+        verbose_name_plural = 'Список параметров'
         constraints = [
             models.UniqueConstraint(fields=['product_info_id', 'parameter_id'], name='unique_product_parameter'),
         ]
+
+    def __str__(self):
+        return f'{self.product_info} - {self.parameter.name}'
