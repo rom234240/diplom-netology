@@ -8,7 +8,8 @@ from .models import User
 class CustomUserAdmin(UserAdmin):
     list_display = ('email', 'first_name', 'last_name', 'company', 'position', 'is_staff', 'is_active')
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'company')
-    ordering = ('email')
+    ordering = ('email',
+                )
 
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
@@ -25,4 +26,4 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('email', 'password1', 'password2', 'first_name', 'last_name', 'company', 'position'),
         }),
     )
-    
+
