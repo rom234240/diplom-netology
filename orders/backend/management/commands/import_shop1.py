@@ -86,7 +86,6 @@ class Command(BaseCommand):
             
             self.stdout.write('=== Импорт shop1.yaml завершен успешно! ===')
             
-            # Итоговая статистика
             self.stdout.write(f"ИТОГО ИМПОРТИРОВАНО:")
             self.stdout.write(f"Магазинов: {Shop.objects.count()}")
             self.stdout.write(f"Категорий: {Category.objects.count()}")
