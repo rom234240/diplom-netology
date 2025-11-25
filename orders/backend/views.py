@@ -7,9 +7,12 @@ from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 from requests import get
 from yaml import load as load_yaml, Loader
-from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter
-from .serializers import ShopSerializer
 
+from orders.users.models import User
+from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter
+from .serializers import ShopSerializer, UserSerializer
+from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth import authenticate
 
 class PartnerUpdate(APIView):
     def post(self, request, *args, **kwargs):
@@ -68,6 +71,66 @@ class PartnerUpdate(APIView):
                     return JsonResponse({'Status': False, 'Error': str(e)})
         
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
+    
+class RegisterView(APIView):
+    def post(self, request, *args, **kwargs):
+        required_fields = {'first_name', 'last_name', 'email', 'password'}
+        if not all(field in request.data for field in required_fields):
+            return Response(
+                {'Status': False, 'Error': 'Не указаны все необходимые аргументы'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            validate_password(request.data['password'])
+        except ValidationError as e:
+            return Response(
+                {'Status': False, 'Error': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if User.objects.filter(email=request.data['email']).exists():
+            return Response(
+                {'Status': False, 'Error': 'Пользователь с таким email уже существует'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        user_serializer = UserSerializer(data=request.data)
+        if user_serializer.is_valid():
+            user = user_serializer.save()
+            user.set_password(request.data['password'])
+            user.save()
+            return Response({'Status': True}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(
+                {'Status': False, 'Errors': user_serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
+class LoginView(APIView):
+    def post(self, request, *args, **kwargs):
+        if {'email', 'password'}.issubset(request.data):
+            user = authenticate(
+                request,
+                username=request.data['email'],
+                password=request.data['password']
+            )
+
+            if user is not None:
+                if user.is_active:
+                    return Response({'Status': True}, status=status.HTTP_200_OK)
+                else:
+                    return Response(
+                        {'Status': False, 'Error': 'Учетная запись не активна'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            else:
+                return Response(
+                    {'Status': False, 'Error': 'Неверный email или пароль'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        return Response(
+            {'Status': False, 'Error': 'Не указаны все необходимые аргументы'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
