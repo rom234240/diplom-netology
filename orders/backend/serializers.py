@@ -55,8 +55,18 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'email', 'company', 'position', 'contacts']
+        fields = ['id', 'first_name', 'last_name', 'email', 'company', 'position', 'contacts', 'password']
         read_only_fields = ['id']
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = User.objects.create(**validated_data)
+        user.set_password(password)
+        user.save()
+        return user
 
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
