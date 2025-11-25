@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from django.http import JsonResponse
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
@@ -10,10 +10,12 @@ from yaml import load as load_yaml, Loader
 
 from users.models import User
 from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter
-from .serializers import ShopSerializer, UserSerializer
+from .serializers import ProductInfoSerializer, ShopSerializer, UserSerializer
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.db.models import Q
+
 
 class PartnerUpdate(APIView):
     permission_classes = [AllowAny]
@@ -138,4 +140,26 @@ class LoginView(APIView):
             status=status.HTTP_400_BAD_REQUEST
         )
 
+class ProducListview(generics.ListAPIView):
+    serializer_class = ProductInfoSerializer
 
+    def get_queryset(self):
+        queryset = ProductInfo.objects.filter(
+            quantity__qt=0
+        ).select_related('product', 'shop', 'product__category').prefetch_related('product_parameters')
+
+        category_id = self.request.query_params.get('category_id')
+        if category_id:
+            queryset = queryset.filter(product__category_id=category_id)
+
+        shop_id = self.request.query_params.get('shop_id')
+        if shop_id:
+            queryset = queryset.filter(shop_id=shop_id)
+
+        search = self.request.query_params.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(product__name__icontains=search) |
+                Q(model__icontains=search)
+            )
+        return queryset
