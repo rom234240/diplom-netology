@@ -77,8 +77,6 @@ class PartnerUpdate(APIView):
 class RegisterView(APIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
-        # required_fields = {'first_name', 'last_name', 'email', 'password'}
-        # if not all(field in request.data for field in required_fields):
         if not all([request.data.get('first_name'), 
                    request.data.get('last_name'), 
                    request.data.get('email'), 
@@ -104,7 +102,6 @@ class RegisterView(APIView):
         user_serializer = UserSerializer(data=request.data)
         if user_serializer.is_valid():
             user = user_serializer.save()
-            # user.set_password(request.data['password'])
             user.save()
             return Response({'Status': True}, status=status.HTTP_201_CREATED)
         else:
