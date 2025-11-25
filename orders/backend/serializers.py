@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter
+from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Contact, Order, OrderItem
+from users.models import User
 
 
 class ShopSerializer(serializers.ModelSerializer):
@@ -42,3 +43,31 @@ class ProductInfoSerializer(serializers.ModelSerializer):
         model = ProductInfo
         fields = ['id', 'product', 'shop', 'model', 'external_id',
                   'quntity', 'price', 'price_rcc', 'product_parameters']
+        
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = ['id', 'city', 'street', 'house', 'structure', 'building', 'apartment', 'phone']
+        read_only_fields = ['id']
+
+class UserSerializer(serializers.ModelSerializer):
+    contacts = ContactSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'email', 'company', 'position', 'contacts']
+        read_only_fields = ['id']
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'product_info', 'quantity']
+        read_only_fields = ['id']
+
+class OrderSerializer(serializers.ModelSerializer):
+    ordered_items = OrderItemSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Order
+        fields = ['id', 'dt', 'state', 'contact', 'ordered_items']
+        reaf_only_fields = ['id', 'dt']
