@@ -152,12 +152,12 @@ class OrderItem(models.Model):
     class Meta:
         verbose_name = 'Заказанная позиция'
         verbose_name_plural = 'Список заказанных позиций'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['order_id', 'product_info'],
-                name='unique_order_item'
-            ),
-        ]
+        # constraints = [
+            # models.UniqueConstraint(
+                # fields=['order_id', 'product_info_id'],
+                # name='unique_order_item'
+            # ),
+        # ]
     
     def __str__(self):
         return f'{self.product_info.product.name} - {self.quantity} шт.'
