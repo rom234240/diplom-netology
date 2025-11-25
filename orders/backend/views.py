@@ -145,7 +145,7 @@ class ProductListView(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = ProductInfo.objects.filter(
-            quantity__qt=0
+            quantity__gt=0
         ).select_related('product', 'shop', 'product__category').prefetch_related('product_parameters')
 
         category_id = self.request.query_params.get('category_id')
