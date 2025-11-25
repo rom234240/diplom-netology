@@ -100,7 +100,7 @@ class Contact(models.Model):
         related_name='contacts',
         on_delete=models.CASCADE
     )
-    city = models.CharField(max_lenght=50, verbose_name='Город')
+    city = models.CharField(max_length=50, verbose_name='Город')
     street = models.CharField(max_length=100, verbose_name='Улица')
     house = models.CharField(max_length=15, verbose_name='Дом', blank=True)
     structure = models.CharField(max_length=15, verbose_name='Корпус', blank=True)
