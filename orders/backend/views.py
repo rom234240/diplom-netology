@@ -8,13 +8,15 @@ from django.core.exceptions import ValidationError
 from requests import get
 from yaml import load as load_yaml, Loader
 
-from orders.users.models import User
+from users.models import User
 from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter
 from .serializers import ShopSerializer, UserSerializer
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 class PartnerUpdate(APIView):
+    permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
@@ -73,6 +75,7 @@ class PartnerUpdate(APIView):
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
     
 class RegisterView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         required_fields = {'first_name', 'last_name', 'email', 'password'}
         if not all(field in request.data for field in required_fields):
@@ -107,6 +110,7 @@ class RegisterView(APIView):
             )
 
 class LoginView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         if {'email', 'password'}.issubset(request.data):
             user = authenticate(
