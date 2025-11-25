@@ -9,8 +9,8 @@ from requests import get
 from yaml import load as load_yaml, Loader
 
 from users.models import User
-from .models import Contact, Shop, Category, Product, ProductInfo, Parameter, ProductParameter
-from .serializers import ContactSerializer, ProductInfoSerializer, ShopSerializer, UserSerializer
+from .models import Contact, Order, OrderItem, Shop, Category, Product, ProductInfo, Parameter, ProductParameter
+from .serializers import ContactSerializer, OrderItemSerializer, ProductInfoSerializer, ShopSerializer, UserSerializer
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -180,3 +180,42 @@ class ContactDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return Contact.objects.filter(user=self.request.user)
+    
+class BasketView(generics.ListCreateAPIView):
+    serializer_class = OrderItemSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        order, _ = Order.objects.get_or_create(
+            user=self.request.user,
+            state='basket'
+        )
+        return OrderItem.objects.filter(order=order)
+    
+    def create(self, request, *args, **kwargs):
+        if not {'product_info_id', 'quantity'}.issubset(request.data):
+            return Response(
+                {'Status': False, 'Error': 'Не указаны все необходимые аргументы'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        order, _ = Order.objects.get_or_create(user=request.user, state='basket')
+        
+        order_item, created = OrderItem.objects.update_or_create(
+            order=order,
+            product_info_id=request.data['product_info_id'],
+            defaults={'quantity': request.data['quantity']}
+        )
+        
+        serializer = self.get_serializer(order_item)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class BasketDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = OrderItemSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        order = Order.objects.filter(user=self.request.user, state='basket').first()
+        if order:
+            return OrderItem.objects.filter(order=order)
+        return OrderItem.objects.none()
