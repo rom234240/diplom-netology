@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter
+from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Contact, Order, OrderItem
 
 
 @admin.register(Shop)
@@ -35,4 +35,20 @@ class ProductParameterAdmin(admin.ModelAdmin):
     list_display = ('id', 'product_info', 'parameter', 'value')
     list_filter = ('parameter',)
     search_fields = ('value',)
+
+@admin.register(Contact)
+class ContactAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'street', 'house', 'phone')
+    search_fields = ('city', 'street', 'user_email')
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'dt', 'state')
+    list_filter = ('state', 'dt')
+    search_fields = ('user__email',)
+
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ('id', 'order', 'product_info', 'quantity')
+    search_fields = ('order__user__email', 'product_info__product__name')
 
