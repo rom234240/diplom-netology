@@ -9,8 +9,8 @@ from requests import get
 from yaml import load as load_yaml, Loader
 
 from users.models import User
-from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter
-from .serializers import ProductInfoSerializer, ShopSerializer, UserSerializer
+from .models import Contact, Shop, Category, Product, ProductInfo, Parameter, ProductParameter
+from .serializers import ContactSerializer, ProductInfoSerializer, ShopSerializer, UserSerializer
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -163,3 +163,20 @@ class ProductListView(generics.ListAPIView):
                 Q(model__icontains=search)
             )
         return queryset
+    
+class ContactListView(generics.ListCreateAPIView):
+    serializer_class = ContactSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Contact.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class ContactDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = ContactSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Contact.objects.filter(user=self.request.user)
