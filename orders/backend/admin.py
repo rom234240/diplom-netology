@@ -49,6 +49,17 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ('id', 'order', 'product_info', 'quantity')
+    list_display = ('id', 'get_order', 'get_product', 'get_shop', 'quantity')
     search_fields = ('order__user__email', 'product_info__product__name')
-
+    
+    def get_order(self, obj):
+        return f"Заказ #{obj.order.id} от {obj.order.dt.strftime('%d.%m.%Y %H:%M')}"
+    get_order.short_description = 'Заказ'
+    
+    def get_product(self, obj):
+        return obj.product_info.product.name
+    get_product.short_description = 'Продукт'
+    
+    def get_shop(self, obj):
+        return obj.product_info.shop.name
+    get_shop.short_description = 'Магазин'
