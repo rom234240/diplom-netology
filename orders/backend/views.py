@@ -140,7 +140,7 @@ class LoginView(APIView):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-class ProducListView(generics.ListAPIView):
+class ProductListView(generics.ListAPIView):
     serializer_class = ProductInfoSerializer
 
     def get_queryset(self):
