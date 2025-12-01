@@ -323,3 +323,45 @@ class OrderDetailView(generics.RetrieveAPIView):
     
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
+    
+class APIRootView(APIView):
+    permission_classes = [AllowAny]
+    
+    def get(self, request, *args, **kwargs):
+        return Response({
+            'message': 'Добро пожаловать в API магазина!',
+            'endpoints': {
+                'partner': {
+                    'update': '/api/partner/update',
+                    'description': 'Обновление товаров партнера'
+                },
+                'user': {
+                    'register': '/api/user/register',
+                    'login': '/api/user/login',
+                    'contacts': '/api/user/contact',
+                },
+                'products': {
+                    'list': '/api/products',
+                    'description': 'Список товаров с фильтрацией'
+                },
+                'basket': {
+                    'list_create': '/api/basket',
+                    'detail': '/api/basket/<id>',
+                    'description': 'Работа с корзиной'
+                },
+                'orders': {
+                    'confirm': '/api/order/confirm',
+                    'list': '/api/orders',
+                    'detail': '/api/order/<id>',
+                    'description': 'Работа с заказами'
+                }
+            },
+            'instructions': {
+                'authentication': 'Используйте TokenAuthentication. Получите токен через /api/user/login',
+                'examples': {
+                    'login': 'POST /api/user/login {"email": "...", "password": "..."}',
+                    'get_products': 'GET /api/products (требуется токен)',
+                    'add_to_basket': 'POST /api/basket {"product_info_id": 1, "quantity": 2}'
+                }
+            }
+        })
