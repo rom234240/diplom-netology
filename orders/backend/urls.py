@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import BasketDetailView, BasketView, ContactDetailView, ContactListView, PartnerUpdate, RegisterView, LoginView, ProductListView
+from .views import BasketDetailView, BasketView, ContactDetailView, ContactListView, OrderConfirmView, OrderDetailView, OrderListView, PartnerUpdate, RegisterView, LoginView, ProductListView
 
 
 urlpatterns = [
@@ -11,4 +11,7 @@ urlpatterns = [
     path('user/contact/<int:pk>', ContactDetailView.as_view(), name='contact-detail'),
     path('basket', BasketView.as_view(), name='basket'),
     path('basket/<int:pk>', BasketDetailView.as_view(), name='basket-detail'),
+    path('order/confirm', OrderConfirmView.as_view(), name='order-confirm'),
+    path('orders', OrderListView.as_view(), name='order-list'),
+    path('order/<int:pk>', OrderDetailView.as_view(), name='order-detail'),
 ]
