@@ -16,6 +16,7 @@ from django.contrib.auth import authenticate
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.db.models import Q
 from django.db import transaction
+from rest_framework.authtoken.models import Token
 
 
 class PartnerUpdate(APIView):
@@ -125,7 +126,17 @@ class LoginView(APIView):
 
             if user is not None:
                 if user.is_active:
-                    return Response({'Status': True}, status=status.HTTP_200_OK)
+                    token, creared = Token.objects.get_or_create(user=user)
+                    return Response({
+                        'Status': True,
+                        'Token': token.key,
+                        'User': {
+                            'id': user.id,
+                            'email': user.email,
+                            'first_name': user.first_name,
+                            'last_name': user.last_name
+                        }
+                    },status=status.HTTP_200_OK)
                 else:
                     return Response(
                         {'Status': False, 'Error': 'Учетная запись не активна'},
