@@ -15,6 +15,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.db.models import Q
+from django.db import transaction
 
 
 class PartnerUpdate(APIView):
@@ -219,3 +220,53 @@ class BasketDetailView(generics.RetrieveUpdateDestroyAPIView):
         if order:
             return OrderItem.objects.filter(order=order)
         return OrderItem.objects.none()
+    
+class OrderConfirmView(generics.GenericAPIView):
+    permission_classes = (IsAuthenticated)
+
+    def post(self, request, *args, **kwargs):
+        contact_id = request.data.get('contact_id')
+        if not contact_id:
+            return Response(
+                {'Status': False, 'Error': 'Не указан контакт (contact_id)'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            contact = Contact.objects.get(id=contact_id, user=request.user)
+        except Contact.DoesNotExist:
+            return Response(
+                {'Status': False, 'Error': 'Контакт не найден или не принадлежит пользователю'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            order = Order.objects.get(user=request.user, state='basket')
+        except Order.DoesNotExist:
+            return Response(
+                {'Status': False, 'Error': 'Корзина пуста'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            with transaction.atomic():
+                for item in order.ordered_items.all():
+                    if item.product_info.quantity < item.quantity:
+                        return Response(
+                            {'Status': False, 'Error': f'Недостаточно товара: {item.product_info_product.name}. Доступно: {item.product_info.quantity}, запрошено: {item.quantity}'},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                    
+                    item.product_info.quantity -= item.quantity
+                    item.product_info.save()
+
+                order.state ='new'
+                order.contact = contact
+                order.save()
+                return Response({'Status': True, 'order_id': order.id})
+            
+        except Exception as e:
+            return Response(
+                {'Status': False, 'Error': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
