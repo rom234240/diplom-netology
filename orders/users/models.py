@@ -50,7 +50,16 @@ class User(AbstractUser):
         max_length=150,
         blank=True,
         null=True,
-        help_text=_('150 characters or fewer. Letters, digits and @/./+/-/_ only.')
+        help_text=_('150 characters or fewer. Letters, digits and @/./+/-/_ only.'),
+    )
+
+    is_active = models.BooleanField(
+        _('active'),
+        default = True,
+        help_text=_(
+            'Designates whether this user should be treated as active. '
+            'Unselect this instead of deleting accounts.'
+        ),
     )
 
     def __str__(self):
