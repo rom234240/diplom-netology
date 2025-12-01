@@ -39,7 +39,7 @@ class ProductParameterAdmin(admin.ModelAdmin):
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'street', 'house', 'phone')
-    search_fields = ('city', 'street', 'user_email')
+    search_fields = ('city', 'street', 'user__email')
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):

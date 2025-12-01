@@ -59,8 +59,8 @@ class PartnerUpdate(APIView):
                             external_id=item['id'],
                             model=item['model'],
                             price=item['price'],
-                            price_rss=item['price_rss'],
-                            quantity=item['quntity'],
+                            price_rrc=item['price_rrc'],
+                            quantity=item['quantity'],
                             shop_id=shop.id
                         )
 
@@ -241,7 +241,7 @@ class BasketDetailView(generics.RetrieveUpdateDestroyAPIView):
         return OrderItem.objects.none()
     
 class OrderConfirmView(generics.GenericAPIView):
-    permission_classes = (IsAuthenticated)
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
         contact_id = request.data.get('contact_id')
@@ -272,7 +272,7 @@ class OrderConfirmView(generics.GenericAPIView):
                 for item in order.ordered_items.all():
                     if item.product_info.quantity < item.quantity:
                         return Response(
-                            {'Status': False, 'Error': f'Недостаточно товара: {item.product_info_product.name}. Доступно: {item.product_info.quantity}, запрошено: {item.quantity}'},
+                            {'Status': False, 'Error': f'Недостаточно товара: {item.product_info.product.name}. Доступно: {item.product_info.quantity}, запрошено: {item.quantity}'},
                             status=status.HTTP_400_BAD_REQUEST
                         )
                     

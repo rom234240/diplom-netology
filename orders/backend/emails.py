@@ -23,7 +23,7 @@ def send_registration_email(user_email, user_name):
         message,
         settings.DEFAULT_EMAIL,
         [user_email],
-        file_silently = False,
+        fail_silently = False,
     )
 
 def send_order_confirmation_email(user_email, user_name, order_id):
