@@ -219,11 +219,19 @@ class BasketView(generics.ListCreateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+        try:
+            product_info = ProductInfo.objects.get(id=request.data['product_info_id'])
+        except ProductInfo.DoesNotExist:
+            return Response(
+                {'Status': False, 'Error': 'Товар не найден'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         order, _ = Order.objects.get_or_create(user=request.user, state='basket')
         
         order_item, created = OrderItem.objects.update_or_create(
             order=order,
-            product_info_id=request.data['product_info_id'],
+            product_info=product_info,
             defaults={'quantity': request.data['quantity']}
         )
         
@@ -240,7 +248,7 @@ class BasketDetailView(generics.RetrieveUpdateDestroyAPIView):
             return OrderItem.objects.filter(order=order)
         return OrderItem.objects.none()
     
-class OrderConfirmView(generics.GenericAPIView):
+class OrderConfirmView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
