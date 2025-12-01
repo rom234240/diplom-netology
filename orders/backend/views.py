@@ -10,7 +10,7 @@ from yaml import load as load_yaml, Loader
 
 from users.models import User
 from .models import Contact, Order, OrderItem, Shop, Category, Product, ProductInfo, Parameter, ProductParameter
-from .serializers import ContactSerializer, OrderItemSerializer, ProductInfoSerializer, ShopSerializer, UserSerializer
+from .serializers import ContactSerializer, OrderItemSerializer, OrderSerializer, ProductInfoSerializer, ShopSerializer, UserSerializer
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -270,3 +270,12 @@ class OrderConfirmView(generics.GenericAPIView):
                 {'Status': False, 'Error': str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+class OrderListView(generics.ListAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Order.objects.filter(
+            user=self.request.user
+        ).exclude(state='basket').order_by('-dt')
