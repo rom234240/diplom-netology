@@ -17,7 +17,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.db.models import Q
 from django.db import transaction
 from rest_framework.authtoken.models import Token
-from .emails import send_registration_email
+from .emails import send_order_confirmation_email, send_registration_email
 
 
 class PartnerUpdate(APIView):
@@ -114,7 +114,7 @@ class RegisterView(APIView):
                 )
             except Exception as e:
                 print(f'Ошибка отправки email: {e}')
-                
+
             return Response({'Status': True}, status=status.HTTP_201_CREATED)
         else:
             return Response(
@@ -282,6 +282,16 @@ class OrderConfirmView(generics.GenericAPIView):
                 order.state ='new'
                 order.contact = contact
                 order.save()
+
+                try:
+                    send_order_confirmation_email(
+                    user_email=request.user.email,
+                    user_name=f'{request.user.first_name} {request.user.last_name}',
+                    order_id=order.id
+                    )
+                except Exception as e:
+                    print(f"Ошибка отправки email: {e}")
+                    
                 return Response({'Status': True, 'order_id': order.id})
             
         except Exception as e:
