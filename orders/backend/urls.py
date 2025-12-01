@@ -1,24 +1,11 @@
 from django.urls import path
 from requests import Response
-from .views import BasketDetailView, BasketView, ContactDetailView, ContactListView, OrderConfirmView, OrderDetailView, OrderListView, PartnerUpdate, RegisterView, LoginView, ProductListView
+from .views import APIRootView, BasketDetailView, BasketView, ContactDetailView, ContactListView, OrderConfirmView, OrderDetailView, OrderListView, PartnerUpdate, RegisterView, LoginView, ProductListView
 from rest_framework.decorators import api_view
 
-@api_view(['GET'])
-def api_root(request):
-    return Response({
-        'message': 'Orders API',
-        'endpoints': {
-            'register': '/api/user/register',
-            'login': '/api/user/login',
-            'products': '/api/products',
-            'partner_update': '/api/partner/update',
-            'basket': '/api/basket',
-            'orders': '/api/orders',
-            'contacts': '/api/user/contact',
-        }
-    })
 
 urlpatterns = [
+    path('', APIRootView.as_view(), name='api-root'),
     path('partner/update', PartnerUpdate.as_view(), name='partner-update'),
     path('user/register', RegisterView.as_view(), name='user-register'),
     path('user/login', LoginView.as_view(), name='user-login'),
