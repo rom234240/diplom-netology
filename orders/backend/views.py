@@ -17,6 +17,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.db.models import Q
 from django.db import transaction
 from rest_framework.authtoken.models import Token
+from .emails import send_registration_email
 
 
 class PartnerUpdate(APIView):
@@ -106,7 +107,14 @@ class RegisterView(APIView):
         user_serializer = UserSerializer(data=request.data)
         if user_serializer.is_valid():
             user = user_serializer.save()
-            user.save()
+            try:
+                send_registration_email(
+                    user_email=user.email,
+                    user_name=f'{user.first_name} {user.last_name}'
+                )
+            except Exception as e:
+                print(f'Ошибка отправки email: {e}')
+                
             return Response({'Status': True}, status=status.HTTP_201_CREATED)
         else:
             return Response(
