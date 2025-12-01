@@ -279,3 +279,10 @@ class OrderListView(generics.ListAPIView):
         return Order.objects.filter(
             user=self.request.user
         ).exclude(state='basket').order_by('-dt')
+    
+class OrderDetailView(generics.RetrieveAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user)
