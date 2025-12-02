@@ -48,6 +48,7 @@ INSTALLED_APPS = [
 
     'users',
     'backend',
+    'drf-yasg',
 ]
 
 MIDDLEWARE = [
@@ -167,3 +168,14 @@ EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_TLS = False
 DEFAULT_FROM_EMAIL = 'orders@example.com'
+
+# Настройки Swagger
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Token': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}
