@@ -1,30 +1,16 @@
-# Dockerfile
-FROM python:3.11-slim
+FROM python:3.11-alpine
 
-# Устанавливаем системные зависимости
-RUN apt-get update && apt-get install -y \
-    gcc \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем и устанавливаем зависимости Python
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apk add --no-cache postgresql-dev gcc python3-dev musl-dev
 
-# Копируем весь проект
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
 COPY . .
 
-# Создаем статическую директорию
-RUN mkdir -p /app/static
-
-# Запускаем миграции и собираем статику при запуске через скрипт
-COPY entrypoint.sh .
-RUN chmod +x entrypoint.sh
+WORKDIR /app/orders
 
 EXPOSE 8000
 
-# Команда запуска
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "orders.wsgi:application"]
+CMD python manage.py runserver 0.0.0.0:8000
