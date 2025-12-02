@@ -42,13 +42,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # Сторонние приложения
     'rest_framework',
     'rest_framework.authtoken',
     'django_rest_passwordreset',
+    'drf_yasg',
 
+    # Пользовательские приложения
     'users',
     'backend',
-    'drf_yasg',
 ]
 
 MIDDLEWARE = [

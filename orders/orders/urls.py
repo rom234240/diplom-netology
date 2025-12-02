@@ -1,6 +1,19 @@
 """
 URL configuration for orders project.
 
+Основной URL-конфигурационный файл Django-проекта.
+
+Определяет маршруты для:
+- Административной панели Django
+- API endpoints приложения backend
+- Документации API (Swagger/ReDoc)
+- Домашней страницы
+
+Использует:
+- django.contrib.admin: административный интерфейс
+- backend.urls: маршруты API приложения backend
+- drf_yasg: автоматическая генерация документации OpenAPI/Swagger
+
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.2/topics/http/urls/
 Examples:
@@ -20,6 +33,8 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
+
+# Конфигурация схемы OpenAPI/Swagger для автоматической генерации документации
 schema_view = get_schema_view(
     openapi.Info(
         title='Orders API',
@@ -33,13 +48,23 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
+# Основные URL-маршруты проекта
 urlpatterns = [
+    # Административная панель Django
     path('admin/', admin.site.urls),
+
+    # API endpoints приложения backend (основная бизнес-логика)
     path('api/', include('backend.urls')),
 
+    # Документация OpenAPI в формате JSON/YAML (для интеграции)
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+
+    # Интерактивная документация Swagger UI
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+
+    # Альтернативная документация ReDoc
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     
+    # Домашняя страница (перенаправляет на Swagger UI)
     path('', schema_view.with_ui('swagger', cache_timeout=0), name='home'),
 ]

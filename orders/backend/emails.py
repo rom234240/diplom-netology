@@ -1,7 +1,20 @@
+"""
+Функции для отправки email уведомлений.
+
+Содержит функции для отправки email при регистрации и подтверждении заказов.
+"""
+
 from django.core.mail import send_mail
 from django.conf import settings
 
 def send_registration_email(user_email, user_name):
+    """
+    Отправляет приветственное письмо при регистрации пользователя.
+    
+    Args:
+        user_email (str): Email пользователя
+        user_name (str): Имя пользователя
+    """
     subject = 'Добро пожаловать в наш магазин!'
     message = f'''
     Уважаемый(ая) {user_name},
@@ -27,6 +40,14 @@ def send_registration_email(user_email, user_name):
     )
 
 def send_order_confirmation_email(user_email, user_name, order_id):
+    """
+    Отправляет письмо с подтверждением заказа.
+    
+    Args:
+        user_email (str): Email пользователя
+        user_name (str): Имя пользователя
+        order_id (int): ID заказа
+    """
     subject = f'Подтверждение заказа #{order_id}'
     message = f'''
     Уважаемый(ая) {user_name},

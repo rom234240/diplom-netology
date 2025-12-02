@@ -1,3 +1,10 @@
+"""
+Представления (views) для API приложения.
+
+Содержит все API endpoints для работы с магазином, пользователями,
+товарами, корзиной и заказами.
+"""
+
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -21,8 +28,23 @@ from .emails import send_order_confirmation_email, send_registration_email
 
 
 class PartnerUpdate(APIView):
+    """
+    API endpoint для партнеров по обновлению товаров из YAML файла.
+    
+    Требуется аутентификация партнера.
+    """
+
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
+        """
+        Загружает товары из YAML файла по указанному URL.
+        
+        Args:
+            request: Запрос с данными, содержащими URL YAML файла
+            
+        Returns:
+            JsonResponse: Результат операции импорта
+        """
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
         
@@ -80,8 +102,21 @@ class PartnerUpdate(APIView):
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
     
 class RegisterView(APIView):
+    """
+    API endpoint для регистрации новых пользователей.
+    """
+     
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
+        """
+        Регистрирует нового пользователя.
+        
+        Args:
+            request: Запрос с данными пользователя
+            
+        Returns:
+            Response: Результат регистрации
+        """
         if not all([request.data.get('first_name'), 
                    request.data.get('last_name'), 
                    request.data.get('email'), 
@@ -123,8 +158,23 @@ class RegisterView(APIView):
             )
 
 class LoginView(APIView):
+    """
+    API endpoint для аутентификации пользователей.
+    
+    Возвращает токен для доступа к защищенным endpoints.
+    """
+
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
+        """
+        Аутентифицирует пользователя и возвращает токен.
+        
+        Args:
+            request: Запрос с email и паролем
+            
+        Returns:
+            Response: Токен и информация о пользователе
+        """
         if {'email', 'password'}.issubset(request.data):
             user = authenticate(
                 request,
@@ -161,9 +211,21 @@ class LoginView(APIView):
         )
 
 class ProductListView(generics.ListAPIView):
+    """
+    API endpoint для получения списка товаров.
+    
+    Поддерживает фильтрацию по категории, магазину и поиск.
+    """
+
     serializer_class = ProductInfoSerializer
 
     def get_queryset(self):
+        """
+        Возвращает отфильтрованный queryset товаров.
+        
+        Returns:
+            QuerySet: Отфильтрованный список товаров
+        """
         queryset = ProductInfo.objects.filter(
             quantity__gt=0
         ).select_related('product', 'shop', 'product__category').prefetch_related('product_parameters')
@@ -185,27 +247,73 @@ class ProductListView(generics.ListAPIView):
         return queryset
     
 class ContactListView(generics.ListCreateAPIView):
+    """
+    API endpoint для работы с контактами пользователя.
+    
+    GET: получение списка контактов
+    POST: создание нового контакта
+    """
+
     serializer_class = ContactSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        """
+        Возвращает контакты текущего пользователя.
+        
+        Returns:
+            QuerySet: Контакты пользователя
+        """
         return Contact.objects.filter(user=self.request.user)
     
     def perform_create(self, serializer):
+        """
+        Сохраняет контакт с привязкой к текущему пользователю.
+        
+        Args:
+            serializer: Сериализатор контакта
+        """
         serializer.save(user=self.request.user)
 
 class ContactDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint для работы с конкретным контактом.
+    
+    GET: получение контакта
+    PUT: обновление контакта
+    DELETE: удаление контакта
+    """
+
     serializer_class = ContactSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        """
+        Возвращает контакты текущего пользователя.
+        
+        Returns:
+            QuerySet: Контакты пользователя
+        """
         return Contact.objects.filter(user=self.request.user)
     
 class BasketView(generics.ListCreateAPIView):
+    """
+    API endpoint для работы с корзиной пользователя.
+    
+    GET: получение содержимого корзины
+    POST: добавление товара в корзину
+    """
+
     serializer_class = OrderItemSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        """
+        Возвращает товары в корзине текущего пользователя.
+        
+        Returns:
+            QuerySet: Товары в корзине
+        """
         order, _ = Order.objects.get_or_create(
             user=self.request.user,
             state='basket'
@@ -213,6 +321,15 @@ class BasketView(generics.ListCreateAPIView):
         return OrderItem.objects.filter(order=order)
     
     def create(self, request, *args, **kwargs):
+        """
+        Добавляет товар в корзину или обновляет количество.
+        
+        Args:
+            request: Запрос с ID товара и количеством
+            
+        Returns:
+            Response: Результат операции
+        """
         if not {'product_info_id', 'quantity'}.issubset(request.data):
             return Response(
                 {'Status': False, 'Error': 'Не указаны все необходимые аргументы'},
@@ -239,19 +356,48 @@ class BasketView(generics.ListCreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class BasketDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint для работы с конкретным товаром в корзине.
+    
+    GET: получение информации о товаре в корзине
+    PUT: обновление количества товара
+    DELETE: удаление товара из корзины
+    """
+
     serializer_class = OrderItemSerializer
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
+        """
+        Возвращает товары в корзине текущего пользователя.
+        
+        Returns:
+            QuerySet: Товары в корзине
+        """
         order = Order.objects.filter(user=self.request.user, state='basket').first()
         if order:
             return OrderItem.objects.filter(order=order)
         return OrderItem.objects.none()
     
 class OrderConfirmView(APIView):
+    """
+    API endpoint для подтверждения заказа (оформления корзины).
+    
+    Переводит заказ из состояния 'basket' в 'new'.
+    """
+    
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
+        """
+        Подтверждает заказ, проверяя наличие товаров и вычитая их количество.
+        
+        Args:
+            request: Запрос с ID контакта для доставки
+            
+        Returns:
+            Response: Результат подтверждения заказа
+        """
         contact_id = request.data.get('contact_id')
         if not contact_id:
             return Response(
@@ -309,25 +455,60 @@ class OrderConfirmView(APIView):
             )
         
 class OrderListView(generics.ListAPIView):
+    """
+    API endpoint для получения списка заказов пользователя.
+    
+    Не включает заказы со статусом 'basket' (корзина).
+    """
+
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        """
+        Возвращает заказы текущего пользователя, исключая корзину.
+        
+        Returns:
+            QuerySet: Заказы пользователя
+        """
         return Order.objects.filter(
             user=self.request.user
         ).exclude(state='basket').order_by('-dt')
     
 class OrderDetailView(generics.RetrieveAPIView):
+    """
+    API endpoint для получения деталей конкретного заказа.
+    """
+
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
+        """
+        Возвращает заказы текущего пользователя.
+        
+        Returns:
+            QuerySet: Заказы пользователя
+        """
         return Order.objects.filter(user=self.request.user)
     
 class APIRootView(APIView):
+    """
+    Корневой endpoint API.
+    
+    Возвращает информацию о доступных endpoints и инструкции по использованию.
+    """
+
     permission_classes = [AllowAny]
     
     def get(self, request, *args, **kwargs):
+        """
+        Возвращает информацию о всех доступных endpoints API.
+        
+        Returns:
+            Response: JSON с описанием API
+        """
+
         return Response({
             'message': 'Добро пожаловать в API магазина!',
             'endpoints': {
