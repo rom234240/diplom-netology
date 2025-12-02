@@ -48,7 +48,7 @@ INSTALLED_APPS = [
 
     'users',
     'backend',
-    'drf-yasg',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
