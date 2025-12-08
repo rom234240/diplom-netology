@@ -108,7 +108,7 @@ services:
       - .env
     environment:
       DB_HOST: db
-      DB_NAME: test_orders_db  # Отдельная БД для тестов
+      DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       SECRET_KEY: ${SECRET_KEY}
@@ -123,7 +123,7 @@ services:
       sh -c "cd orders &&
              python manage.py migrate --noinput &&
              coverage run -m pytest backend/tests/ -v &&
-             coverage report"
+             coverage report --fail-under=30"
 
 volumes:
   postgres_data:
