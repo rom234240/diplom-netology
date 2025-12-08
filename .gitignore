@@ -41,3 +41,14 @@ flower/
 
 # Redis
 dump.rdb
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+*.cover
+*.py,cover
+
+# pytest
+.pytest_cache/
+.cache/
