@@ -24,7 +24,6 @@ services:
     env_file:
       - .env
     environment:
-      # Убедитесь что переменные передаются
       DB_HOST: ${DB_HOST}
     volumes:
       - .:/app
@@ -38,6 +37,71 @@ services:
       sh -c "sleep 5 && 
              python manage.py migrate --noinput && 
              python manage.py runserver 0.0.0.0:8000"
+  redis:
+    image: redis:7-alpine
+    container_name: orders_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+  
+  celery_worker:
+    build: .
+    container_name: orders_celery_worker
+    restart: always
+    env_file:
+      - .env
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    volumes:
+      - .:/app
+    working_dir: /app/orders
+    depends_on:
+      - redis
+      - db
+      - web
+    command: >
+      sh -c "sleep 10 &&
+             celery -A orders worker --loglevel=info --concurrency=2"
+  
+  celery_beat:
+    build: .
+    container_name: orders_celery_beat
+    restart: always
+    env_file:
+      - .env
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    volumes:
+      - .:/app
+    working_dir: /app/orders
+    depends_on:
+      - redis
+      - db
+      - web
+    command: >
+      sh -c "sleep 15 &&
+             celery -A orders beat --loglevel=info"
+  
+  flower:
+    image: mher/flower:1.2
+    container_name: orders_flower
+    restart: always
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      FLOWER_PORT: 5555
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+      - celery_worker
 
 volumes:
   postgres_data:
+  redis_data:
+
