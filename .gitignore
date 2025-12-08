@@ -27,3 +27,17 @@ Thumbs.db
 
 # Database
 *.db
+
+# Celery
+celerybeat-schedule
+celerybeat-schedule.*
+*.celerybeat-schedule
+
+# Celery результаты
+celery_results/
+
+# Flower
+flower/
+
+# Redis
+dump.rdb
