@@ -143,12 +143,13 @@ class RegisterView(APIView):
         if user_serializer.is_valid():
             user = user_serializer.save()
             try:
-                send_registration_email(
+                task_id = send_registration_email(
                     user_email=user.email,
                     user_name=f'{user.first_name} {user.last_name}'
                 )
+                print(f'Задача отправки email запущена (ID: {task_id})')
             except Exception as e:
-                print(f'Ошибка отправки email: {e}')
+                print(f'Ошибка запуска задачи отправки email: {e}')
 
             return Response({'Status': True}, status=status.HTTP_201_CREATED)
         else:
