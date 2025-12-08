@@ -30,3 +30,10 @@ celery==5.5.3
 django_celery_results==2.6.0
 redis==7.1.0
 flower==2.0.1
+coverage==7.13.0
+pytest==9.0.2
+pytest-cov==7.0.0
+pytest-django==4.11.1
+pytest-django==4.11.1
+pytest-cov==7.0.0
+factory_boy==3.3.3
