@@ -439,13 +439,14 @@ class OrderConfirmView(APIView):
                 order.save()
 
                 try:
-                    send_order_confirmation_email(
-                    user_email=request.user.email,
-                    user_name=f'{request.user.first_name} {request.user.last_name}',
-                    order_id=order.id
+                    task_id = send_order_confirmation_email(
+                        user_email=request.user.email,
+                        user_name=f'{request.user.first_name} {request.user.last_name}',
+                        order_id=order.id
                     )
+                    print(f'Задача отправки подтверждения заказа запущена (ID: {task_id})')
                 except Exception as e:
-                    print(f"Ошибка отправки email: {e}")
+                    print(f'Ошибка запуска задачи отправки email: {e}')
                     
                 return Response({'Status': True, 'order_id': order.id})
             
