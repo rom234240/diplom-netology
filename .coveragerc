@@ -1,0 +1,23 @@
+[run]
+source = .
+omit =
+    */migrations/*
+    */tests/*
+    */__pycache__/*
+    manage.py
+    */admin.py
+    */apps.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __str__
+    raise AssertionError
+    raise NotImplementedError
+    if 0:
+    if __name__ == .__main__.:
+    class .*Test.*:
+    
+show_missing = True
+skip_covered = False
+fail_under = 30  # Минимальное покрытие 30%
