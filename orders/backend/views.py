@@ -184,7 +184,7 @@ class LoginView(APIView):
 
             if user is not None:
                 if user.is_active:
-                    token, creared = Token.objects.get_or_create(user=user)
+                    token, created = Token.objects.get_or_create(user=user)
                     return Response({
                         'Status': True,
                         'Token': token.key,
