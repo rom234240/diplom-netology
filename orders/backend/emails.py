@@ -1,73 +1,38 @@
 """
-Функции для отправки email уведомлений.
+Функции для отправки email уведомлений через Celery.
 
-Содержит функции для отправки email при регистрации и подтверждении заказов.
+Содержит функции-обертки для запуска асинхронных задач Celery.
 """
 
-from django.core.mail import send_mail
-from django.conf import settings
+from .tasks import send_registration_email_task, send_order_confirmation_email_task
+
 
 def send_registration_email(user_email, user_name):
     """
-    Отправляет приветственное письмо при регистрации пользователя.
+    Запускает асинхронную задачу для отправки приветственного письма.
     
     Args:
         user_email (str): Email пользователя
         user_name (str): Имя пользователя
     """
-    subject = 'Добро пожаловать в наш магазин!'
-    message = f'''
-    Уважаемый(ая) {user_name},
 
-    Благодарим Вас за регистрацию в нашем магазине!
-
-    Теперь вы можете:
-    - Просматривать товары
-    - Добавлять товары в корзину
-    - Оформлять заказы
-    - Отслеживать статус заказов
-
-    С уважением,
-    Команда магазина!
-    '''
-
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_EMAIL,
-        [user_email],
-        fail_silently = False,
-    )
+    task = send_registration_email_task.delay(user_email, user_name)
+    print(f'Задача отправки регистрационного email запущена: {task.id}')
+    return task.id
+    
 
 def send_order_confirmation_email(user_email, user_name, order_id):
     """
-    Отправляет письмо с подтверждением заказа.
+    Запускает асинхронную задачу для отправки письма с подтверждением заказа.
     
     Args:
         user_email (str): Email пользователя
         user_name (str): Имя пользователя
         order_id (int): ID заказа
     """
-    subject = f'Подтверждение заказа #{order_id}'
-    message = f'''
-    Уважаемый(ая) {user_name},
-    
-    Ваш заказ #{order_id} успешно оформлен!
-    
-    Статус заказа: Новый
-    Номер заказа: {order_id}
-    
-    Мы уведомим вас об изменении статуса заказа.
-    
-    С уважением,
-    Команда магазина!
-    '''
-    
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [user_email],
-        fail_silently=False,
-    )
+
+    task = send_order_confirmation_email_task.delay(user_email, user_name, order_id)
+    print(f'Задача отправки подтверждения заказа #{order_id} запущена: {task.id}')
+    return task.id
+
 
