@@ -8,6 +8,7 @@ from django.urls import path
 from .views import (APIRootView, BasketDetailView, BasketView, ContactDetailView, ContactListView,
 OrderConfirmView, OrderDetailView, OrderListView, PartnerUpdate, RegisterView, LoginView, ProductListView)
 
+from .views_social import SocialAuthCallbackView, SocialAuthLoginView, SocialAuthErrorView
 
 urlpatterns = [
     # Корневой endpoint API
@@ -33,4 +34,9 @@ urlpatterns = [
     path('order/confirm', OrderConfirmView.as_view(), name='order-confirm'),
     path('orders', OrderListView.as_view(), name='order-list'),
     path('order/<int:pk>', OrderDetailView.as_view(), name='order-detail'),
+
+    # Endpoints для социальной авторизации
+    path('social/vk/auth', SocialAuthLoginView.as_view(), name='social-vk-auth'),
+    path('social/callback', SocialAuthCallbackView.as_view(), name='social-callback'),
+    path('social/error', SocialAuthErrorView.as_view(), name='social-error'),
 ]
