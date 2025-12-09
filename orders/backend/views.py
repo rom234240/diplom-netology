@@ -26,6 +26,8 @@ from django.db import transaction
 from rest_framework.authtoken.models import Token
 from .emails import send_order_confirmation_email, send_registration_email
 
+from rest_framework.throttling import ScopedRateThrottle
+
 
 class PartnerUpdate(APIView):
     """
@@ -35,6 +37,9 @@ class PartnerUpdate(APIView):
     """
 
     permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'partner'
+    
     def post(self, request, *args, **kwargs):
         """
         Загружает товары из YAML файла по указанному URL.
@@ -107,6 +112,9 @@ class RegisterView(APIView):
     """
      
     permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'register'
+
     def post(self, request, *args, **kwargs):
         """
         Регистрирует нового пользователя.
@@ -166,6 +174,9 @@ class LoginView(APIView):
     """
 
     permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'login'
+
     def post(self, request, *args, **kwargs):
         """
         Аутентифицирует пользователя и возвращает токен.
