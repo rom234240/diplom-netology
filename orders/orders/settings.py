@@ -35,6 +35,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
+    'jet',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -248,3 +249,74 @@ SWAGGER_SETTINGS = {
         }
     }
 }
+
+# НАСТРОЙКИ DJANGO JET
+# Основные настройки
+JET_SIDE_MENU_COMPACT = True
+JET_CHANGE_FORM_SIBLING_LINKS = True
+JET_SHOW_MENU_ITEMS = True
+JET_SIDE_MENU_COMPACT = True
+
+# Настройки темы
+JET_THEMES = [
+    {
+        'theme': 'default',
+        'color': '#47bac1',
+        'title': 'Default'
+    },
+    {
+        'theme': 'green',
+        'color': '#44b78b',
+        'title': 'Green'
+    },
+    {
+        'theme': 'light-green',
+        'color': '#2faa60',
+        'title': 'Light Green'
+    },
+    {
+        'theme': 'light-violet',
+        'color': '#a464c4',
+        'title': 'Light Violet'
+    },
+    {
+        'theme': 'light-blue',
+        'color': '#5EADDE',
+        'title': 'Light Blue'
+    },
+    {
+        'theme': 'light-gray',
+        'color': '#222',
+        'title': 'Light Gray'
+    }
+]
+
+# Настройки дашборда (опционально)
+JET_INDEX_DASHBOARD = 'jet.dashboard.dashboard.DefaultIndexDashboard'
+JET_APP_INDEX_DASHBOARD = 'jet.dashboard.dashboard.DefaultAppIndexDashboard'
+
+
+
+
+# Кастомное меню (опционально)
+JET_SIDE_MENU_ITEMS = [
+    {'label': 'Основное', 'items': [
+        {'name': 'backend.shop', 'label': 'Магазины'},
+        {'name': 'backend.category', 'label': 'Категории'},
+        {'name': 'backend.product', 'label': 'Товары'},
+    ]},
+    {'label': 'Пользователи', 'items': [
+        {'name': 'users.user', 'label': 'Пользователи'},
+        {'name': 'backend.contact', 'label': 'Контакты'},
+    ]},
+    {'label': 'Заказы', 'items': [
+        {'name': 'backend.order', 'label': 'Заказы'},
+        {'name': 'backend.orderitem', 'label': 'Позиции заказов'},
+    ]},
+    {'label': 'Аутентификация', 'items': [
+        {'name': 'auth.user', 'label': 'Пользователи (системные)'},
+        {'name': 'auth.group', 'label': 'Группы'},
+        {'name': 'social_django.usersocialauth', 'label': 'Социальные аккаунты'},
+    ]},
+]
+
