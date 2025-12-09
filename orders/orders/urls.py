@@ -50,6 +50,10 @@ schema_view = get_schema_view(
 
 # Основные URL-маршруты проекта
 urlpatterns = [
+    # JET админка (должна быть перед стандартной админкой)
+    path('jet/', include('jet.urls', 'jet')),
+    path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),
+
     # Административная панель Django
     path('admin/', admin.site.urls),
 
@@ -70,4 +74,5 @@ urlpatterns = [
     
     # Домашняя страница (перенаправляет на Swagger UI)
     path('', schema_view.with_ui('swagger', cache_timeout=0), name='home'),
+
 ]
