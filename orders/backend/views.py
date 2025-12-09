@@ -533,6 +533,8 @@ class APIRootView(APIView):
                     'register': '/api/user/register',
                     'login': '/api/user/login',
                     'contacts': '/api/user/contact',
+                    'vk_auth': '/api/social/vk/auth',
+                    'social_callback': '/api/social/callback',
                 },
                 'products': {
                     'list': '/api/products',
