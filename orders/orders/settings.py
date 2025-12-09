@@ -47,11 +47,44 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_rest_passwordreset',
     'drf_yasg',
+    'social_django',
 
     # Пользовательские приложения
     'users',
     'backend',
 ]
+
+# Настройки для социальной авторизации
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.vk.VKOAuth2',         
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+# Настройки VK OAuth2
+SOCIAL_AUTH_VK_OAUTH2_KEY = os.getenv('VK_APP_ID', '')
+SOCIAL_AUTH_VK_OAUTH2_SECRET = os.getenv('VK_APP_SECRET', '')
+SOCIAL_AUTH_VK_OAUTH2_SCOPE = ['email']
+SOCIAL_AUTH_VK_OAUTH2_EXTRA_DATA = ['first_name', 'last_name']
+
+# Настройки социальной авторизации
+SOCIAL_AUTH_POSTGRES_JSONFIELD = True
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/api/social/callback'
+SOCIAL_AUTH_LOGIN_ERROR_URL = '/api/social/error'
+SOCIAL_AUTH_USER_MODEL = 'users.User'
+
+# Pipeline для обработки данных пользователя
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -61,6 +94,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware'
 ]
 
 ROOT_URLCONF = 'orders.urls'
