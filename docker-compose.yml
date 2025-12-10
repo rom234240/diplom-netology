@@ -25,6 +25,7 @@ services:
       - .env
     environment:
       DB_HOST: ${DB_HOST}
+      REDIS_CACHE_URL: redis://redis:6379/2
     volumes:
       - .:/app
     working_dir: /app/orders
@@ -33,6 +34,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
     command: >
       sh -c "sleep 5 && 
              python manage.py migrate --noinput && 
@@ -56,6 +59,7 @@ services:
     environment:
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
+      REDIS_CACHE_URL: redis://redis:6379/2
     volumes:
       - .:/app
     working_dir: /app/orders
@@ -76,6 +80,7 @@ services:
     environment:
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
+      REDIS_CACHE_URL: redis://redis:6379/2
     volumes:
       - .:/app
     working_dir: /app/orders
@@ -113,7 +118,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       SECRET_KEY: ${SECRET_KEY}
       DEBUG: 'True'
-      CELERY_BROKER_URL: memory://  # Для тестов используем memory broker
+      CELERY_BROKER_URL: memory://
+      REDIS_CACHE_URL: memory://
     volumes:
       - .:/app
     working_dir: /app
