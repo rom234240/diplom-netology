@@ -5,6 +5,8 @@ URL конфигурация для API приложения backend.
 """
 
 from django.urls import path
+
+from orders.backend.views_cache import CacheManagementView, CacheStatsView
 from .views import (APIRootView, BasketDetailView, BasketView, ContactDetailView, ContactListView,
 OrderConfirmView, OrderDetailView, OrderListView, PartnerUpdate, RegisterView, LoginView, ProductListView)
 
@@ -39,4 +41,8 @@ urlpatterns = [
     path('social/vk/auth', SocialAuthLoginView.as_view(), name='social-vk-auth'),
     path('social/callback', SocialAuthCallbackView.as_view(), name='social-callback'),
     path('social/error', SocialAuthErrorView.as_view(), name='social-error'),
+
+    # Endpoints для кэширования
+    path('cache/stats', CacheStatsView.as_view(), name='cache-stats'),
+    path('cache/manage', CacheManagementView.as_view(), name='cache-manage'),
 ]
