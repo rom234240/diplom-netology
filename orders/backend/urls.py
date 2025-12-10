@@ -6,7 +6,7 @@ URL конфигурация для API приложения backend.
 
 from django.urls import path
 
-from orders.backend.views_cache import CacheManagementView, CacheStatsView
+from backend.views_cache import CacheManagementView, CacheStatsView
 from .views import (APIRootView, BasketDetailView, BasketView, ContactDetailView, ContactListView,
 OrderConfirmView, OrderDetailView, OrderListView, PartnerUpdate, RegisterView, LoginView, ProductListView)
 

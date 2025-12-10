@@ -69,7 +69,7 @@ class QueryCacheMiddleware:
     """
 
     def __init__(self, get_response):
-        self_get_response = get_response
+        self.get_response = get_response
         self.cacheable_paths = [
             '/api/products',
             '/api/user/contact',

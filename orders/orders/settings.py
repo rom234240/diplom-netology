@@ -234,10 +234,10 @@ CACHES = {
         'BACKEND': 'django_redis.cache.RedisCache',
         'LOCATION': os.getenv('REDIS_CACHE_URL', 'redis://redis:6379/2'),
         'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.Default.client',
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             'SOCKET_CONNECT_TIMEOUT': 5,
             'SOCKET_TIMEOUT': 5,
-            'COMPRESSOR': 'django_redis.compressors.zlib.ZliCompressor',
+            'COMPRESSOR': 'django_redis.compressors.zlib.ZlibCompressor',
             'IGNORE_EXCEPTIONS': True,
         },
         'KEY_PREFIX': 'orders_cache',
@@ -249,7 +249,7 @@ SESSION_CACHE_ALIAS = 'default'
 
 # Настройки django-cachalot
 CACHALOT_ENABLED = True
-CACHALOT_CACHE = 'defaul'
+CACHALOT_CACHE = 'default'
 CACHALOT_TIMEOUT = 60 * 15
 CACHALOT_ONLY_CACHEBLE_TABLES = (
     'backend_shop',
