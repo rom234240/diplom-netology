@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django_rest_passwordreset',
     'drf_yasg',
     'social_django',
+    'cachalot',
 
     # Пользовательские приложения
     'users',
@@ -182,17 +183,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # User model
-
 AUTH_USER_MODEL = 'users.User'
 
 # Улучшаем заголовок админки
-
 ADMIN_SITE_HEADER = "Панель управления заказами"
 ADMIN_SITE_TITLE = "Админка заказов"
 ADMIN_INDEX_TITLE = "Управление данными"
 
 # Настройки DRF
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
@@ -203,7 +201,6 @@ REST_FRAMEWORK = {
     ],
 
     # Настройки для троттлинга
-
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
@@ -219,7 +216,6 @@ REST_FRAMEWORK = {
 }
 
 # Настройки Celery
-
 CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://redis:6379/0')
 CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://redis:6379/0')
 CELERY_ACCEPT_CONTENT = ['json']
@@ -229,8 +225,50 @@ CELERY_TIMEZONE = 'UTC'
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 
-# Настройки email
+# Настройка кэш Redis
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.getenv('REDIS_CACHE_URL', 'redis://redis:6379/2'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.Default.client',
+            'SOCKET_CONNECT_TIMEOUT': 5,
+            'SOCKET_TIMEOUT': 5,
+            'COMPRESSOR': 'django_redis.compressors.zlib.ZliCompressor',
+            'IGNORE_EXCEPTIONS': True,
+        },
+        'KEY_PREFIX': 'orders_cache',
+    }
+}
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
+
+# Настройки django-cachalot
+CACHALOT_ENABLED = True
+CACHALOT_CACHE = 'defaul'
+CACHALOT_TIMEOUT = 60 * 15
+CACHALOT_ONLY_CACHEBLE_TABLES = (
+    'backend_shop',
+    'backend_category',
+    'backend_product',
+    'backend_productinfo',
+    'backend_parameter',
+    'backend_productparameter',
+    'users_user',
+)
+
+CACHALOT_QUERY_KEYGEN = 'cachalot.utils.get_query_cache_key'
+CACHALOT_TABLE_KEYGEN = 'cachalot.utils.get_table_cache_key'
+
+CACHALOT_INVALID_RAW = True
+CACHALOT_CACHE_RANDOM = True
+
+if DEBUG:
+    CACHALOT_ENABLED = True
+    CACHALOT_TIMEOUT = 60 * 5
+
+# Настройки email
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 25
