@@ -6,7 +6,7 @@
 
 from rest_framework import serializers
 
-from orders.backend.serializers_images import ProductWithImagesSerializer
+from backend.serializers_images import ProductWithImagesSerializer
 from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Contact, Order, OrderItem
 from users.models import User
 
