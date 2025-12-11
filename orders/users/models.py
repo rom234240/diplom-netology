@@ -14,6 +14,9 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from imagekit.models import ImageSpecField
+from imagekit.processors import ResizeToFill, Thumbnail
+import os
 
 class UserManger(BaseUserManager):
     """
@@ -161,4 +164,73 @@ class User(AbstractUser):
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Список пользователей'
         ordering = ('email',)
+
+    # Добавляем поле для аватара
+    avatar = models.ImageField(
+        verbose_name='Аватар',
+        upload_to='users/avatars/%Y/%m/%d/',
+        blank=True,
+        null=True,
+        max_length=255
+    )
+    
+    # ImageKit спецификации для автоматической генерации миниатюр
+    avatar_thumbnail = ImageSpecField(
+        source='avatar',
+        processors=[ResizeToFill(100, 100)],
+        format='JPEG',
+        options={'quality': 80}
+    )
+    
+    avatar_small = ImageSpecField(
+        source='avatar',
+        processors=[ResizeToFill(50, 50)],
+        format='JPEG',
+        options={'quality': 70}
+    )
+    
+    avatar_medium = ImageSpecField(
+        source='avatar',
+        processors=[ResizeToFill(300, 300)],
+        format='JPEG',
+        options={'quality': 85}
+    )
+    
+    def save(self, *args, **kwargs):
+        # Удаляем старый аватар при обновлении
+        if self.pk:
+            try:
+                old_user = User.objects.get(pk=self.pk)
+                if old_user.avatar and old_user.avatar != self.avatar:
+                    if os.path.isfile(old_user.avatar.path):
+                        os.remove(old_user.avatar.path)
+            except User.DoesNotExist:
+                pass
+        
+        super().save(*args, **kwargs)
+    
+    def delete(self, *args, **kwargs):
+        # Удаляем файл аватара при удалении пользователя
+        if self.avatar:
+            if os.path.isfile(self.avatar.path):
+                os.remove(self.avatar.path)
+        super().delete(*args, **kwargs)
+    
+    @property
+    def avatar_url(self):
+        """
+        Возвращает URL аватара или URL дефолтного аватара.
+        """
+        if self.avatar and hasattr(self.avatar, 'url'):
+            return self.avatar.url
+        return '/static/default_avatar.png'
+    
+    @property
+    def avatar_thumbnail_url(self):
+        """
+        Возвращает URL миниатюры аватара.
+        """
+        if self.avatar and hasattr(self.avatar_thumbnail, 'url'):
+            return self.avatar_thumbnail.url
+        return '/static/default_avatar_thumb.png'
 
