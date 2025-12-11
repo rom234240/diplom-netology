@@ -45,3 +45,5 @@ google-api-python-client==2.187.0
 django-cachalot==2.8.0
 django-redis==6.0.0
 rollbar==1.3.0
+django-imagekit==6.0.0
+pillow==12.0.0
