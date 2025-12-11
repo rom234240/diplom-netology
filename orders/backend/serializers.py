@@ -84,14 +84,24 @@ class UserSerializer(serializers.ModelSerializer):
     """
 
     contacts = ContactSerializer(read_only=True, many=True)
+    avatar_url = serializers.SerializerMethodField()
+    avatar_thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'email', 'company', 'position', 'contacts', 'password']
-        read_only_fields = ['id']
+        fields = ['id', 'first_name', 'last_name', 'email', 'company', 'position', 'contacts', 'avatar', 'avatar_url', 
+                  'avatar_thumbnail_url', 'password']
+        read_only_fields = ['id', 'avatar_url', 'avatar_thumbnail_url']
         extra_kwargs = {
-            'password': {'write_only': True}
+            'password': {'write_only': True},
+            'avatar': {'write_only': True}
         }
+
+    def get_avatar_url(self, obj):
+        return obj.avatar_url
+    
+    def get_avatar_thumbnail_url(self, obj):
+        return obj.avatar_thumbnail_url
 
     def create(self, validated_data):
         """
