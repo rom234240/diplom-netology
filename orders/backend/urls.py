@@ -12,6 +12,18 @@ OrderConfirmView, OrderDetailView, OrderListView, PartnerUpdate, RegisterView, L
 
 from .views_social import SocialAuthCallbackView, SocialAuthLoginView, SocialAuthErrorView
 
+from .views_rollbar import (
+    RollbarTestView,
+    RollbarUnhandledExceptionView,
+    RollbarHandledExceptionView,
+    RollbarLogTestView,
+    RollbarCustomMessageView,
+    RollbarDivideByZeroView,
+    RollbarKeyErrorView,
+    RollbarAttributeErrorView,
+    RollbarCeleryTestView,
+)
+
 urlpatterns = [
     # Корневой endpoint API
     path('', APIRootView.as_view(), name='api-root'),
@@ -45,4 +57,16 @@ urlpatterns = [
     # Endpoints для кэширования
     path('cache/stats', CacheStatsView.as_view(), name='cache-stats'),
     path('cache/manage', CacheManagementView.as_view(), name='cache-manage'),
+
+    # Endpoints для тестирования Rollbar
+    path('rollbar/test', RollbarTestView.as_view(), name='rollbar-test'),
+    path('rollbar/test/unhandled', RollbarUnhandledExceptionView.as_view(), name='rollbar-unhandled'),
+    path('rollbar/test/handled', RollbarHandledExceptionView.as_view(), name='rollbar-handled'),
+    path('rollbar/test/log/<str:level>', RollbarLogTestView.as_view(), name='rollbar-log'),
+    path('rollbar/test/custom', RollbarCustomMessageView.as_view(), name='rollbar-custom'),
+    path('rollbar/test/zero', RollbarDivideByZeroView.as_view(), name='rollbar-zero'),
+    path('rollbar/test/keyerror', RollbarKeyErrorView.as_view(), name='rollbar-keyerror'),
+    path('rollbar/test/attribute', RollbarAttributeErrorView.as_view(), name='rollbar-attribute'),
+    path('rollbar/test/celery', RollbarCeleryTestView.as_view(), name='rollbar-celery'),
 ]
+
