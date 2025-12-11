@@ -26,6 +26,7 @@ services:
     environment:
       DB_HOST: ${DB_HOST}
       REDIS_CACHE_URL: redis://redis:6379/2
+      ROLLBAR_ACCESS_TOKEN: ${ROLLBAR_ACCESS_TOKEN:-}
     volumes:
       - .:/app
     working_dir: /app/orders
