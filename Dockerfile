@@ -7,7 +7,13 @@ RUN apk add --no-cache \
     gcc \
     python3-dev \
     musl-dev \
-    bash
+    bash \
+    jpeg-dev \     
+    zlib-dev \     
+    libwebp-dev \  
+    freetype-dev \ 
+    lcms2-dev \    
+    openjpeg-dev
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
