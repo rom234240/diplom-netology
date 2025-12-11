@@ -5,6 +5,8 @@
 """
 
 from rest_framework import serializers
+
+from orders.backend.serializers_images import ProductWithImagesSerializer
 from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Contact, Order, OrderItem
 from users.models import User
 
@@ -58,7 +60,7 @@ class ProductInfoSerializer(serializers.ModelSerializer):
     Включает вложенные сериализаторы для продукта и его параметров.
     """
 
-    product = ProductSerializer()
+    product = ProductWithImagesSerializer()
     product_parameters = ProductParameterSerializer(many=True)
 
     class Meta:
