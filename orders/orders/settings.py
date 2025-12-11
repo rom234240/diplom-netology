@@ -380,7 +380,7 @@ LOGGING = {
         },
         'console': {
             'level': 'DEBUG',
-            'class': 'logging.StreamHadler',
+            'class': 'logging.StreamHandler',
         },
     },
     'loggers': {
