@@ -30,6 +30,19 @@ class UserAvatarUploadView(APIView):
     """
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        """
+        Возвращает информацию об аватаре текущего пользователя.
+        """
+        user = request.user
+        
+        return Response({
+            'status': True,
+            'avatar_url': user.avatar_url,
+            'thumbnail_url': user.avatar_thumbnail_url,
+            'has_avatar': bool(user.avatar)
+        })
     
     def post(self, request, *args, **kwargs):
         """
@@ -85,6 +98,22 @@ class ProductImageUploadView(APIView):
     """
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, product_id, *args, **kwargs):
+        """
+        Возвращает информацию об основном изображении товара.
+        """
+        product = get_object_or_404(Product, id=product_id)
+        
+        return Response({
+            'status': True,
+            'product_id': product.id,
+            'product_name': product.name,
+            'image_url': product.image_url,
+            'thumbnail_url': product.thumbnail_url,
+            'has_image': bool(product.image),
+            'additional_images_count': product.additional_images.count()
+        })
     
     def post(self, request, product_id, *args, **kwargs):
         """
@@ -115,6 +144,28 @@ class ProductImageUploadView(APIView):
             'status': False,
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, product_id, *args, **kwargs):
+        """
+        Удаляет основное изображение товара.
+        """
+        product = get_object_or_404(Product, id=product_id)
+        
+        if product.image:
+            # Удаляем файл
+            product.image.delete(save=False)
+            product.image = None
+            product.save()
+            
+            return Response({
+                'status': True,
+                'message': 'Изображение товара удалено'
+            }, status=status.HTTP_200_OK)
+        
+        return Response({
+            'status': False,
+            'message': 'Изображение товара не найдено'
+        }, status=status.HTTP_404_NOT_FOUND)
 
 
 class AdditionalImageListView(generics.ListCreateAPIView):
