@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'social_django',
     'cachalot',
+    'imagekit',
 
     # Пользовательские приложения
     'users',
