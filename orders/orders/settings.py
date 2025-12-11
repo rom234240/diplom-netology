@@ -90,6 +90,7 @@ SOCIAL_AUTH_PIPELINE = (
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -337,8 +338,6 @@ JET_INDEX_DASHBOARD = 'jet.dashboard.dashboard.DefaultIndexDashboard'
 JET_APP_INDEX_DASHBOARD = 'jet.dashboard.dashboard.DefaultAppIndexDashboard'
 
 
-
-
 # Кастомное меню (опционально)
 JET_SIDE_MENU_ITEMS = [
     {'label': 'Основное', 'items': [
@@ -361,3 +360,56 @@ JET_SIDE_MENU_ITEMS = [
     ]},
 ]
 
+# Настройки Rollbar
+ROLLBAR = {
+    'access_token': os.getenv('ROLLBAR_ACCESS_TOKEN', ''),
+    'environment': 'development' if DEBUG else 'production',
+    'branch': 'main',
+    'root': BASE_DIR,
+    'enabled': bool(os.getenv('ROLLBAR_ACCESS_TOKEN', '')),
+}
+
+# Настройки логирования для Rollbar
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'rollbar': {
+            'level': 'ERROR',
+            'class': 'rollbar.logger.RollbarHandler',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHadler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'rollbar'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        '__main__': {
+            'handlers': ['console', 'rollbar'],
+            'level': 'DEBUG',
+            'propogate': True,
+        },
+    },
+}
+
+# Инициализация Rollbar
+import rollbar
+if ROLLBAR['enabled']:
+    rollbar.init(
+        access_token=ROLLBAR['access_token'],
+        environment=ROLLBAR['environment'],
+        root=ROLLBAR['root'],
+        handler='blocking',
+        locals={
+            'enabled': True,
+            'safe_list': ['HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR'],
+        }
+    )
+    print(f"✅ Rollbar инициализирован для окружения: {ROLLBAR['environment']}")
+else:
+    print("⚠ Rollbar отключен (не указан ROLLBAR_ACCESS_TOKEN)")
