@@ -7,6 +7,7 @@ URL конфигурация для API приложения backend.
 from django.urls import path
 
 from backend.views_cache import CacheManagementView, CacheStatsView
+from orders.backend.views_images import AdditionalImageDetailView, AdditionalImageListView, ImageCleanupView, ProductImageUploadView, ThumbnailGenerationView, UserAvatarUploadView
 from .views import (APIRootView, BasketDetailView, BasketView, ContactDetailView, ContactListView,
 OrderConfirmView, OrderDetailView, OrderListView, PartnerUpdate, RegisterView, LoginView, ProductListView)
 
@@ -68,5 +69,15 @@ urlpatterns = [
     path('rollbar/test/keyerror', RollbarKeyErrorView.as_view(), name='rollbar-keyerror'),
     path('rollbar/test/attribute', RollbarAttributeErrorView.as_view(), name='rollbar-attribute'),
     path('rollbar/test/celery', RollbarCeleryTestView.as_view(), name='rollbar-celery'),
+
+    # Endpoints для работы с изображениями
+    path('user/avatar', UserAvatarUploadView.as_view(), name='user-avatar'),
+    path('products/<int:product_id>/image', ProductImageUploadView.as_view(), name='product-image-upload'),
+    path('products/<int:product_id>/images', AdditionalImageListView.as_view(), name='additional-images-list'),
+    path('products/<int:product_id>/images/<int:pk>', AdditionalImageDetailView.as_view(), name='additional-image-detail'),
+    
+    # Административные endpoints
+    path('images/cleanup', ImageCleanupView.as_view(), name='images-cleanup'),
+    path('images/generate-thumbnails', ThumbnailGenerationView.as_view(), name='generate-thumbnails'),
 ]
 
