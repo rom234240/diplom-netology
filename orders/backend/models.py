@@ -19,6 +19,9 @@
 from django.db import models
 from users.models import User
 
+from imagekit.models import ImageSpecField, ProcessedImageField
+from imagekit.processors import ResizeToFill, ResizeToFit, Thumbnail
+import os
 
 class Shop(models.Model):
     """
@@ -69,6 +72,44 @@ class Product(models.Model):
     name = models.CharField(max_length=80, verbose_name='Название')
     category = models.ForeignKey(Category, verbose_name='Категория', related_name='products', on_delete=models.CASCADE)
 
+    # Добавляем поле для основного изображения товара
+    image = models.ImageField(
+        verbose_name='Изображение товара',
+        upload_to='products/images/%Y/%m/%d/',
+        blank=True,
+        null=True,
+        max_length=255
+    )
+    
+    # ImageKit спецификации для товара
+    image_thumbnail = ImageSpecField(
+        source='image',
+        processors=[ResizeToFill(150, 150)],
+        format='JPEG',
+        options={'quality': 80}
+    )
+    
+    image_small = ImageSpecField(
+        source='image',
+        processors=[ResizeToFill(300, 300)],
+        format='JPEG',
+        options={'quality': 85}
+    )
+    
+    image_medium = ImageSpecField(
+        source='image',
+        processors=[ResizeToFill(600, 600)],
+        format='JPEG',
+        options={'quality': 90}
+    )
+    
+    image_large = ImageSpecField(
+        source='image',
+        processors=[ResizeToFit(1200, 1200)],
+        format='JPEG',
+        options={'quality': 95}
+    )
+
     class Meta:
         verbose_name = 'Продукт'
         verbose_name_plural = 'Список продуктов'
@@ -76,6 +117,105 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def save(self, *args, **kwargs):
+        # Удаляем старое изображение при обновлении
+        if self.pk:
+            try:
+                old_product = Product.objects.get(pk=self.pk)
+                if old_product.image and old_product.image != self.image:
+                    if os.path.isfile(old_product.image.path):
+                        os.remove(old_product.image.path)
+            except Product.DoesNotExist:
+                pass
+        
+        super().save(*args, **kwargs)
+        
+        # Запускаем асинхронную обработку изображения
+        if self.image:
+            from .tasks import process_product_image
+            process_product_image.delay(self.id)
+    
+    def delete(self, *args, **kwargs):
+        # Удаляем файл изображения при удалении товара
+        if self.image:
+            if os.path.isfile(self.image.path):
+                os.remove(self.image.path)
+        super().delete(*args, **kwargs)
+    
+    @property
+    def image_url(self):
+        """
+        Возвращает URL изображения товара.
+        """
+        if self.image and hasattr(self.image, 'url'):
+            return self.image.url
+        return '/static/default_product.png'
+    
+    @property
+    def thumbnail_url(self):
+        """
+        Возвращает URL миниатюры товара.
+        """
+        if self.image and hasattr(self.image_thumbnail, 'url'):
+            return self.image_thumbnail.url
+        return '/static/default_product_thumb.png'
+
+
+class ProductImage(models.Model):
+    """
+    Дополнительные изображения для товара.
+    """
+    product = models.ForeignKey(
+        Product,
+        verbose_name='Товар',
+        related_name='additional_images',
+        on_delete=models.CASCADE
+    )
+    
+    image = ProcessedImageField(
+        verbose_name='Изображение',
+        upload_to='products/additional/%Y/%m/%d/',
+        processors=[ResizeToFit(800, 800)],
+        format='JPEG',
+        options={'quality': 90},
+        blank=True,
+        null=True
+    )
+    
+    order = models.PositiveIntegerField(
+        verbose_name='Порядок',
+        default=0
+    )
+    
+    # Миниатюра для списка
+    thumbnail = ImageSpecField(
+        source='image',
+        processors=[ResizeToFill(100, 100)],
+        format='JPEG',
+        options={'quality': 80}
+    )
+    
+    created_at = models.DateTimeField(
+        verbose_name='Дата создания',
+        auto_now_add=True
+    )
+    
+    class Meta:
+        verbose_name = 'Дополнительное изображение'
+        verbose_name_plural = 'Дополнительные изображения'
+        ordering = ('order', 'created_at')
+    
+    def __str__(self):
+        return f'Изображение для {self.product.name}'
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        
+        # Запускаем асинхронную обработку
+        if self.image:
+            from .tasks import process_additional_image
+            process_additional_image.delay(self.id)
     
 class ProductInfo(models.Model):
     """
