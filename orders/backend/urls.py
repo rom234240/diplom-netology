@@ -7,7 +7,7 @@ URL конфигурация для API приложения backend.
 from django.urls import path
 
 from backend.views_cache import CacheManagementView, CacheStatsView
-from orders.backend.views_images import AdditionalImageDetailView, AdditionalImageListView, ImageCleanupView, ProductImageUploadView, ThumbnailGenerationView, UserAvatarUploadView
+from backend.views_images import AdditionalImageDetailView, AdditionalImageListView, ImageCleanupView, ProductImageUploadView, ThumbnailGenerationView, UserAvatarUploadView
 from .views import (APIRootView, BasketDetailView, BasketView, ContactDetailView, ContactListView,
 OrderConfirmView, OrderDetailView, OrderListView, PartnerUpdate, RegisterView, LoginView, ProductListView)
 
@@ -79,5 +79,8 @@ urlpatterns = [
     # Административные endpoints
     path('images/cleanup', ImageCleanupView.as_view(), name='images-cleanup'),
     path('images/generate-thumbnails', ThumbnailGenerationView.as_view(), name='generate-thumbnails'),
+
+    # Endpoints для загрузки/удаления
+    path('user/avatar', UserAvatarUploadView.as_view(), name='user-avatar'),
 ]
 
