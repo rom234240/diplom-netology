@@ -80,3 +80,5 @@ def send_order_confirmation_email_task(self, user_email, user_name, order_id):
     
     except Exception as e:
         self.retry(exc=e, countdown=60)
+
+from .tasks_rollbar import test_rollbar_celery_task, send_rollbar_message_task
